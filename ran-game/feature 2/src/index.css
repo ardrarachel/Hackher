@@ -1,0 +1,159 @@
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap');
+
+:root {
+  /* Word Detective - Brighter Pastel Palette */
+  --bg-color: #B3D8F5;
+  /* Lighter, brighter pastel blue */
+
+  --text-primary: #2C3E50;
+  /* Dark Slate Blue */
+  --text-secondary: #475569;
+  /* Slate 600 */
+
+  --primary: #A8C5F0;
+  /* Slightly brighter button color */
+  --primary-hover: #8AB9E2;
+  /* Secondary accent for hover */
+  --primary-text: #1e293b;
+  /* Dark text for contrast on buttons */
+
+  --secondary: #8AB9E2;
+  /* Cards / Secondary elements */
+  --accent: #92D1E0;
+  /* Highlight / Phoneme */
+
+  --success: #C7F0D4;
+  /* Soft Pastel Green (Correct) */
+  --error: #F7C6C6;
+  /* Soft Pastel Pink (Missed/Error) */
+
+  --surface: rgba(255, 255, 255, 0.9);
+  --glass: rgba(255, 255, 255, 0.75);
+
+  --shadow-sm: 0 1px 3px 0 rgb(44 62 80 / 0.1), 0 1px 2px -1px rgb(44 62 80 / 0.1);
+  --shadow-md: 0 4px 6px -1px rgb(44 62 80 / 0.1), 0 2px 4px -2px rgb(44 62 80 / 0.1);
+  --shadow-lg: 0 20px 25px -5px rgb(44 62 80 / 0.1), 0 8px 10px -6px rgb(44 62 80 / 0.1);
+
+  --radius-lg: 1.5rem;
+  --radius-xl: 2rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-color: #0f172a;
+    /* Keep dark mode deep but maybe slightly blue-tinted if needed, sticking to standard for now to avoid breaking readability */
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --surface: rgba(30, 41, 59, 0.8);
+    --glass: rgba(30, 41, 59, 0.6);
+    --primary: #38bdf8;
+    --primary-text: #0f172a;
+  }
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Fredoka', 'Comic Sans MS', cursive, sans-serif;
+  /* Kid-friendly rounded font */
+  background-color: var(--bg-color);
+  background-image: radial-gradient(at 0% 0%, rgba(168, 197, 240, 0.4) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(146, 209, 224, 0.4) 0px, transparent 50%);
+  /* Using Primary and Accent */
+  background-attachment: fixed;
+  color: var(--text-primary);
+  line-height: 1.5;
+  min-height: 100vh;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+/* Utilities */
+.card {
+  background: var(--surface);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: var(--radius-xl);
+  padding: 2.5rem;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.btn {
+  background: linear-gradient(135deg, var(--primary) 0%, #e0f2fe 100%);
+  color: var(--primary-text);
+  padding: 1rem 2.5rem;
+  /* Larger, pill-shaped */
+  border-radius: 9999px;
+  /* Pill shape */
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--shadow-md);
+  letter-spacing: 0.5px;
+  position: relative;
+  overflow: hidden;
+  font-family: 'Fredoka', sans-serif;
+  /* Ensure buttons match */
+}
+
+.btn:hover {
+  background: linear-gradient(135deg, var(--primary-hover) 0%, #bae6fd 100%);
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 10px 15px -3px rgba(186, 230, 253, 0.4);
+}
+
+.btn:active {
+  transform: translateY(-1px);
+}
+
+.grid-2x2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2rem;
+  max-width: 600px;
+  margin: 3rem auto;
+}
+
+h1,
+h2,
+h3 {
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+h1 {
+  font-size: 3.5rem;
+  margin-bottom: 1rem;
+  background: none;
+  -webkit-background-clip: unset;
+  background-clip: unset;
+  color: #1e3a8a;
+  /* Dark Blue Shade (Blue 900) - Clear and readable */
+  text-shadow: 2px 2px 0px rgba(255, 255, 255, 0.5);
+  /* Friendly pop */
+}
+
+.status-badge {
+  background: white;
+  padding: 0.5rem 1.5rem;
+  border-radius: 999px;
+  box-shadow: var(--shadow-sm);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}

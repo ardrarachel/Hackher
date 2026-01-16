@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Story Weaver - Magic Storybook</title>
+    <style>
+        /*            - Background: Soft Cream (#FFFFE5) to reduce glare/visual stress
+           - Text: Dark Blue (#000033) for high contrast but softer than black
+           - Font: Comic Sans MS (widely readable) or fallback to rounded fonts
+        */
+        :root {
+            --bg-color: #FFFFE5;
+            --text-color: #000033;
+            --accent-color: #FFB347;
+            /* Pastel Orange for warmth */
+            --button-active: #ff6b6b;
+            --shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .book-container {
+            max-width: 800px;
+            width: 100%;
+            text-align: center;
+            padding: 2rem;
+            border: 2px dashed #D3D3D3;
+            border-radius: 20px;
+            margin-top: 2rem;
+            background: white;
+            /* Slightly brighter page area */
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-color);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.8;
+            margin-bottom: 2rem;
+        }
+
+        /* --- STORY DISPLAY AREA --- */
+        .story-page {
+            min-height: 150px;
+            font-size: 1.5rem;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            border-radius: 10px;
+            background-color: var(--bg-color);
+            /* Match background for seamless look or slightly different */
+        }
+
+        .placeholder-text {
+            color: #aaa;
+            font-style: italic;
+        }
+
+        /* --- IMAGE AREA --- */
+        .illustration-frame {
+            width: 100%;
+            height: 400px;
+            background: #f0f0f0;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+            border: 3px solid var(--text-color);
+        }
+
+        .illustration-frame img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+        }
+
+        .illustration-frame img.loaded {
+            opacity: 1;
+        }
+
+        .loading-text {
+            position: absolute;
+            font-size: 1.5rem;
+            color: #888;
+            animation: pulse 1.5s infinite;
+        }
+
+        /* --- CONTROLS --- */
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .mic-button {
+            background-color: white;
+            border: 4px solid var(--text-color);
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            font-size: 2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mic-button:hover {
+            transform: scale(1.1);
+        }
+
+        /* PULSE ANIMATION for RECORDING STATE */
+        .mic-button.listening {
+            background-color: var(--button-active);
+            border-color: var(--button-active);
+            color: white;
+            animation: pulse-ring 2s infinite;
+        }
+
+        .ai-response {
+            margin-top: 2rem;
+            padding: 1rem;
+            background: #e6e6fa;
+            /* Light purple */
+            border-radius: 10px;
+            font-style: italic;
+            display: none;
+            /* Hidden until AI replies */
+        }
+
+        @keyframes pulse {
+            0% {
+                opacity: 0.5;
+            }
+
+            50% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0.5;
+            }
+        }
+
+        @keyframes pulse-ring {
+            0% {
+                box-shadow: 0 0 0 0 rgba(255, 107, 107, 0.7);
+            }
+
+            70% {
+                box-shadow: 0 0 0 20px rgba(255, 107, 107, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(255, 107, 107, 0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="book-container">
+        <h1>Story Weaver 🪄</h1>
+        <p class="subtitle">Tap the microphone and tell me a story...</p>
+
+        <!-- Dynamic Illustration -->
+        <div class="illustration-frame" id="illustrationFrame">
+            <span class="loading-text" id="loadingText" style="display: none;">Painting your imagination...</span>
+            <img id="storyImage" src="" alt="Story Illustration" />
+        </div>
+
+        <!-- Text Display -->
+        <div class="story-page" id="storyOutput">
+            <span class="placeholder-text">Your magical words will appear here...</span>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls">
+            <button class="mic-button" id="micBtn" title="Start Recording">
+                🎤
+            </button>
+        </div>
+
+        <!-- Mock AI Feedback Area -->
+        <div class="ai-response" id="aiResponse"></div>
+    </div>
+
+    <script>
+        /**
+         * Story Weaver Logic
+         */
+
+        // --- 1. SETUP VARIABLES ---
+        const micBtn = document.getElementById('micBtn');
+        const storyOutput = document.getElementById('storyOutput');
+        const storyImage = document.getElementById('storyImage');
+        const loadingText = document.getElementById('loadingText');
+        const aiResponseBox = document.getElementById('aiResponse');
+
+        let isListening = false;
+        let recognition;
+
+        // --- 2. WEB SPEECH API SETUP ---
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            recognition.continuous = false; // We want one sentence/chunk at a time for the prototype
+            recognition.interimResults = true;
+            recognition.lang = 'en-US';
+
+            recognition.onstart = () => {
+                isListening = true;
+                micBtn.classList.add('listening');
+                storyOutput.innerHTML = '<span class="placeholder-text">Listening...</span>';
+            };
+
+            recognition.onend = () => {
+                isListening = false;
+                micBtn.classList.remove('listening');
+            };
+
+            recognition.onresult = (event) => {
+                let finalTranscript = '';
+                for (let i = event.resultIndex; i < event.results.length; ++i) {
+                    if (event.results[i].isFinal) {
+                        finalTranscript += event.results[i][0].transcript;
+                        handleNewStoryChunk(finalTranscript); // PROCESS THE TEXT
+                    } else {
+                        // Show interim results so user knows it's hearing them
+                        storyOutput.innerText = event.results[i][0].transcript;
+                    }
+                }
+            };
+
+            recognition.onerror = (event) => {
+                console.error("Speech Error:", event.error);
+                micBtn.classList.remove('listening');
+                alert("Microphone error: " + event.error);
+            };
+
+        } else {
+            alert("Sorry, your browser doesn't support speech recognition. Please try Chrome!");
+        }
+
+        // --- 3. UI HANDLERS ---
+        micBtn.addEventListener('click', () => {
+            if (!recognition) return;
+
+            if (isListening) {
+                recognition.stop();
+            } else {
+                recognition.start();
+            }
+        });
+
+        // --- 4. CORE LOGIC: PROCESS TEXT -> IMAGE -> AI ---
+        function handleNewStoryChunk(text) {
+            // A. Update Text on Screen
+            storyOutput.innerText = text;
+
+            // B. Generate Image
+            generateImage(text);
+
+            // C. Call Placeholder AI
+            askGeminiAI(text);
+        }
+
+        function generateImage(prompt) {
+            // Show loading state
+            loadingText.style.display = 'block';
+            storyImage.style.opacity = '0';
+
+            // Generate URL (Pollinations.ai)
+            // Added detailed style modifiers for a cute, consistent look
+            const stylePrompt = "children's book illustration style, cute cartoon, whimsical, watercolor texture, soft colored pencil outlines, friendly and vibrant colors, simple shapes, no text in image";
+            const encodedPrompt = encodeURIComponent(prompt + " " + stylePrompt);
+            const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=512&height=512&nologo=true&seed=${Math.random()}`;
+
+            console.log("Generating Image URL:", imageUrl); // DEBUG LOG
+
+            // Load Image
+            storyImage.src = imageUrl;
+
+            storyImage.onload = () => {
+                loadingText.style.display = 'none';
+                storyImage.classList.add('loaded');
+            };
+
+            storyImage.onerror = () => {
+                console.error("Failed to load image:", imageUrl);
+                loadingText.innerText = "⚠️ Would have painted a picture, but the easel broke! (Load Error)";
+                loadingText.style.color = "red";
+                loadingText.style.animation = "none";
+            };
+        }
+
+        // --- 5. PLACEHOLDER AI FUNCTION (Ready for API Key) ---
+        /**
+         * Placeholder for Gemini AI Logic.
+         * TODO: Replace inner logic with actual API call.
+         */
+        async function askGeminiAI(userText) {
+            console.log("Asking AI about:", userText);
+
+            // ---------------------------------------------------------
+            // TODO: PASTE REAL GEMINI API CODE HERE LATER
+            // const genAI = new GoogleGenerativeAI("YOUR_API_KEY");
+            // const model = genAI.getGenerativeModel({ model: "gemini-pro"});
+            // ...
+            // ---------------------------------------------------------
+
+            // MOCK RESPONSE
+            const mockResponses = [
+                "That sounds amazing! What happened next?",
+                "Oh wow! Tell me more about that!",
+                "And then what did they do?",
+                "That's so creative! Keep going!",
+                "I can picture that perfectly! What color was it?"
+            ];
+            const randomResponse = mockResponses[Math.floor(Math.random() * mockResponses.length)];
+
+            // Display Feedback
+            aiResponseBox.innerText = "✨ AI Partner: " + randomResponse;
+            aiResponseBox.style.display = 'block';
+        }
+
+    </script>
+</body>
+
+</html>
