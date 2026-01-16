@@ -1,0 +1,22 @@
+# Task: RAN Screening Game "The Brain"
+
+- [ ] Project Setup <!-- id: 0 -->
+    - [ ] Initialize Vite + React project <!-- id: 1 -->
+    - [ ] Set up basic CSS/Design System (Premium/Modern) <!-- id: 2 -->
+- [ ] Speech Recognition Implementation <!-- id: 3 -->
+    - [ ] Create generic SpeechRecognition wrapper/hook <!-- id: 4 -->
+    - [ ] specific setup for keywords (Red, Blue, Chair, Dog) <!-- id: 5 -->
+- [ ] Game Engine (The Balloon Game) <!-- id: 6 -->
+    - [ ] Create Game Component with 2x2 Grid <!-- id: 7 -->
+    - [ ] Implement Timer Logic (Start on load, Stop on completion) <!-- id: 8 -->
+    - [ ] Implement Matching Logic (Speech -> Grid Item) <!-- id: 9 -->
+- [ ] Risk Assessment Logic <!-- id: 10 -->
+    - [ ] Implement Risk Calculation (Time > 20s) <!-- id: 11 -->
+    - [ ] Save Screening Result to localStorage <!-- id: 12 -->
+- [ ] Emotion Detection Lite <!-- id: 13 -->
+    - [ ] Implement Distress Keywords Listener (Hard, Stop, Stuck) <!-- id: 14 -->
+    - [ ] Trigger Empathy Mode (Console log / Visual feedback for now) <!-- id: 15 -->
+- [ ] Verification <!-- id: 16 -->
+    - [ ] Test Happy Path (All words detected, Low Risk) <!-- id: 17 -->
+    - [ ] Test High Risk Path (Time > 20s) <!-- id: 18 -->
+    - [ ] Test Distress Keywords <!-- id: 19 -->
