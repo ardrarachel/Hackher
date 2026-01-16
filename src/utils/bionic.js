@@ -4,23 +4,31 @@
  * @returns {Array<{ original: string, bold: string, regular: string }>}
  */
 export function toBionic(text) {
-    if (!text) return [];
+    if (!text || typeof text !== 'string') return [];
 
-    // Split by whitespace but keep the whitespace attached or handle it?
-    // Simple split by space for now as per requirements "Split text into words".
-    // Handling punctuation might be tricky. Tesseract output preserves punctuation.
-
+    // Split by whitespace but keep punctuation attached
     return text.split(/\s+/).map(word => {
         if (!word) return null;
 
-        // Logic: Bold first half.
-        const len = word.length;
+        // Separate word from trailing punctuation
+        const match = word.match(/^([a-zA-Z]+)(.*)$/);
+        if (!match) {
+            // If no letters, treat as is (punctuation only)
+            return {
+                original: word,
+                bold: '',
+                regular: word
+            };
+        }
+
+        const [_, letters, punctuation] = match;
+        const len = letters.length;
         let mid;
         if (len <= 3) mid = 1;
         else mid = Math.ceil(len / 2);
 
-        const bold = word.slice(0, mid);
-        const regular = word.slice(mid);
+        const bold = letters.slice(0, mid);
+        const regular = letters.slice(mid) + punctuation;
 
         return {
             original: word,

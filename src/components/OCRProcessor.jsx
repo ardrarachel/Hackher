@@ -31,12 +31,26 @@ const OCRProcessor = ({ imageData, onTextExtracted, onLoading }) => {
 
                 const croppedParams = canvas.toDataURL('image/jpeg');
 
-                // Initialize Tesseract
-                const worker = await createWorker('eng');
-                const ret = await worker.recognize(croppedParams);
-                console.log("Raw OCR Output:", ret.data.text);
+                // Initialize Tesseract with optimized settings
+                const worker = await createWorker('eng', 1, {
+                    logger: m => console.log(m) // Optional: log progress
+                });
 
-                onTextExtracted(ret.data.text);
+                // Set parameters for faster processing
+                await worker.setParameters({
+                    tessedit_pageseg_mode: '6', // Uniform block of text
+                    tessedit_ocr_engine_mode: '1', // Neural nets LSTM engine
+                });
+
+                const ret = await worker.recognize(croppedParams);
+                const extractedText = ret.data.text.trim();
+                
+                // Console log the text found in the image
+                console.log("=== Text found in image ===");
+                console.log(extractedText);
+                console.log("===========================");
+
+                onTextExtracted(extractedText);
                 await worker.terminate();
             } catch (error) {
                 console.error("OCR Error:", error);
